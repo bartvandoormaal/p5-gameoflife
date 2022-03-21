@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+  </head>
+  <body>
+    
+    <script>
+        const DEAD  = 0;
+        const ALIVE = 1;
+
+        const cellSize   = 10;
+        const canvasSize = 600;
+        const borderSize = 10;
+        const rowSize = canvasSize / cellSize + borderSize*2;
+        const totalAmount = rowSize*rowSize;
+
+        let world = [];
+        let auto = false;
+
+        function PlaceGospersGliderGun( x, y ) {
+            x += borderSize;
+            y += borderSize;
+
+            for( let xx = x+1 ; xx < x+39 ; xx++ ) { for( let yy = y ; yy < y+11 ; yy++ ) { 
+                let idx = yy * rowSize + xx;
+                world[idx] = DEAD;
+            }}
+
+            world[ x + 3 + rowSize * ( 5 + y ) ] = ALIVE;
+            world[ x + 3 + rowSize * ( 6 + y ) ] = ALIVE;
+            world[ x + 2 + rowSize * ( 5 + y ) ] = ALIVE;
+            world[ x + 2 + rowSize * ( 6 + y ) ] = ALIVE;
+
+            world[ x + 13 + rowSize * ( 4 + y ) ] = ALIVE;
+            world[ x + 14 + rowSize * ( 3 + y ) ] = ALIVE;
+            world[ x + 15 + rowSize * ( 3 + y ) ] = ALIVE;
+            world[ x + 12 + rowSize * ( 5 + y ) ] = ALIVE;
+            world[ x + 12 + rowSize * ( 6 + y ) ] = ALIVE;
+            world[ x + 12 + rowSize * ( 7 + y ) ] = ALIVE;
+            world[ x + 13 + rowSize * ( 8 + y ) ] = ALIVE;
+            world[ x + 14 + rowSize * ( 9 + y ) ] = ALIVE;
+            world[ x + 15 + rowSize * ( 9 + y ) ] = ALIVE;
+            
+            world[ x + 16 + rowSize * ( 6 + y ) ] = ALIVE;
+            world[ x + 17 + rowSize * ( 4 + y ) ] = ALIVE;
+            world[ x + 18 + rowSize * ( 5 + y ) ] = ALIVE;
+            world[ x + 18 + rowSize * ( 6 + y ) ] = ALIVE;
+            world[ x + 18 + rowSize * ( 7 + y ) ] = ALIVE;
+            world[ x + 17 + rowSize * ( 8 + y ) ] = ALIVE;
+            world[ x + 19 + rowSize * ( 6 + y ) ] = ALIVE;
+            
+            world[ x + 22 + rowSize * ( 3 + y ) ] = ALIVE;
+            world[ x + 23 + rowSize * ( 3 + y ) ] = ALIVE;
+            world[ x + 22 + rowSize * ( 4 + y ) ] = ALIVE;
+            world[ x + 23 + rowSize * ( 4 + y ) ] = ALIVE;
+            world[ x + 22 + rowSize * ( 5 + y ) ] = ALIVE;
+            world[ x + 23 + rowSize * ( 5 + y ) ] = ALIVE;
+
+            world[ x + 24 + rowSize * ( 2 + y ) ] = ALIVE;
+            world[ x + 24 + rowSize * ( 6 + y ) ] = ALIVE;
+            world[ x + 26 + rowSize * ( 2 + y ) ] = ALIVE;
+            world[ x + 26 + rowSize * ( 6 + y ) ] = ALIVE;
+            world[ x + 26 + rowSize * ( 1 + y ) ] = ALIVE;
+            world[ x + 26 + rowSize * ( 7 + y ) ] = ALIVE;
+
+            world[ x + 36 + rowSize * ( 3 + y ) ] = ALIVE;
+            world[ x + 37 + rowSize * ( 3 + y ) ] = ALIVE;
+            world[ x + 36 + rowSize * ( 4 + y ) ] = ALIVE;
+            world[ x + 37 + rowSize * ( 4 + y ) ] = ALIVE;
+        } 
+
+        function PlaceBlinker( x, y ) {
+            x += borderSize;
+            y += borderSize;
+            
+            for( let xx = x ; xx < x + 5 ; xx++ ) { for( let yy = y ; yy < y + 5 ; yy++ ) { 
+                if( 
+                    xx == x+2 && yy >= y+2 && yy <= y+4 
+                ) world[ yy * rowSize + xx ] = ALIVE;
+                else world[ yy * rowSize + xx ] = DEAD;
+            }}
+        } 
+
+        function PlaceBeacon( x, y ) {
+            x += borderSize;
+            y += borderSize;
+            
+            for( let xx = x ; xx < x + 6 ; xx++ ) { for( let yy = y ; yy < y + 6 ; yy++ ) { 
+                if( 
+                    ( ( xx == x + 1 || xx == x + 2 ) && ( yy == y + 1 || yy == y + 2 ) ) ||
+                    ( ( xx == x + 3 || xx == x + 4 ) && ( yy == y + 3 || yy == y + 4 ) ) 
+                ) world[ yy * rowSize + xx ] = ALIVE;
+                else world[ yy * rowSize + xx ] = DEAD;
+
+            }}
+
+        }
+
+        function DieHard( x, y ) {
+            x += borderSize;
+            y += borderSize;
+
+            world[ x + 16 + rowSize * ( 19 + y ) ] = ALIVE;
+            world[ x + 17 + rowSize * ( 19 + y ) ] = ALIVE;
+            world[ x + 17 + rowSize * ( 20 + y ) ] = ALIVE;
+
+            world[ x + 21 + rowSize * ( 20 + y ) ] = ALIVE;
+            world[ x + 22 + rowSize * ( 20 + y ) ] = ALIVE;
+            world[ x + 23 + rowSize * ( 20 + y ) ] = ALIVE;
+            world[ x + 22 + rowSize * ( 18 + y ) ] = ALIVE;
+            
+            for( let i = 0 ; i < totalAmount ; i++ ) {
+                if( world[i] == 1 ) {
+                    console.log( i % rowSize, Math.floor( i / rowSize ) );
+
+                }
+            }
+        }
+
+        function clearWorld() {
+            for( let i = 0 ; i < totalAmount ; i++ ) {
+                world[ i ] = DEAD; 
+            }
+        }
+
+        function newRandomWorld() {
+            for( let i = 0 ; i < totalAmount ; i++ ) {
+              world[ i ] = random(0,1) > 0.5 ? ALIVE : DEAD;
+            }
+        }
+      
+        function setup() {
+            let y = 10;
+            let buttonA = createButton('Start');
+            buttonA.position( canvasSize + 10, y);
+            buttonA.mousePressed( () => {
+                auto = !auto;
+                buttonA.elt.innerHTML = auto ? "Stop" : "Start";
+            });
+
+            let buttonS = createButton('Step');
+            buttonS.position( canvasSize + 70, y);
+            buttonS.mousePressed( () => {
+                step();
+                draw();
+            });
+
+            y += 90;
+            let buttonR = createButton('New Random World');
+            buttonR.position( canvasSize + 10, y);
+            buttonR.mousePressed( newRandomWorld );
+
+            y += 30;
+            let buttonG = createButton('Place Gosper\'s GliderGun');
+            buttonG.position( canvasSize + 10, y);
+            buttonG.mousePressed( () => {
+                clearWorld();
+                PlaceGospersGliderGun(10,15);
+            });
+
+
+            y += 30;
+            let buttonF1 = createButton('Found config 1');
+            buttonF1.position( canvasSize + 10, y);
+            buttonF1.mousePressed( ()=>{
+                clearWorld();
+                PlaceGospersGliderGun(10,10);
+                PlaceBeacon( 10,10 );
+            });
+
+            y += 30;
+            let buttonDH = createButton('Die Hard Config');
+            buttonDH.position( canvasSize + 10, y);
+            buttonDH.mousePressed( ()=>{
+                clearWorld();
+                DieHard(10,10);
+
+                draw(); 
+            });
+
+            
+            
+            
+            createCanvas(canvasSize, canvasSize);
+            
+            frameRate(24);
+        }
+
+        function processCell( idx, world ) {
+            
+            // x column
+            let xc = idx % rowSize;
+            // y column
+            let yc = Math.floor( idx / rowSize );
+
+            //Create lookup for the 8 neighbours
+            let livingNeighbours = 
+                ( idx - 1 > 0           && Math.abs( xc - ( ( idx - 1 ) % rowSize ) ) == 1 ? world[ idx - 1 ] : 0 ) + 
+
+                ( idx + 1 < totalAmount && Math.abs( xc - ( ( idx + 1 ) % rowSize ) ) == 1 ? world[ idx + 1 ] : 0 ) + 
+                
+                ( idx - rowSize > 0     && Math.abs( yc - Math.floor( (idx - rowSize) / rowSize ) ) == 1 ? world[ idx - rowSize     ] : 0 ) + 
+                ( idx - rowSize - 1 > 0 
+                    && Math.abs( yc - Math.floor( (idx - rowSize - 1) / rowSize ) ) == 1 
+                    && Math.abs( xc - ( ( idx - rowSize - 1 ) % rowSize ) ) == 1 
+                    ? world[ idx - rowSize - 1 ] : 0 ) + 
+                ( idx - rowSize + 1 > 0 
+                    && Math.abs( yc - Math.floor( (idx - rowSize + 1) / rowSize ) ) == 1 
+                    && Math.abs( xc - ( ( idx - rowSize + 1 ) % rowSize ) ) == 1 
+                    ? world[ idx - rowSize + 1 ] : 0 ) + 
+                
+                ( idx + rowSize < totalAmount     && Math.abs( yc - Math.floor( (idx - rowSize) / rowSize ) ) == 1 ? world[ idx + rowSize ]     : 0 ) + 
+                ( idx + rowSize - 1 < totalAmount 
+                    && Math.abs( yc - Math.floor( (idx + rowSize - 1) / rowSize ) ) == 1 
+                    && Math.abs( xc - ( ( idx + rowSize - 1 ) % rowSize ) ) == 1 
+                    ? world[ idx + rowSize - 1 ] : 0 ) + 
+                ( idx + rowSize + 1 < totalAmount 
+                    && Math.abs( yc - Math.floor( ( idx + rowSize + 1 ) / rowSize ) ) == 1 
+                    && Math.abs( xc - ( ( idx + rowSize + 1 ) % rowSize ) ) == 1 
+                    ? world[ idx + rowSize + 1 ] : 0 )
+            ;
+            
+            //If a living cell has two or three living neighbours, it stays alive.
+            //A  dead cell with exactly three living neighbours, becomes alive.
+            if( ( world[idx] == ALIVE  && ( livingNeighbours == 2 || livingNeighbours == 3 ) ) || ( world[idx] == DEAD && livingNeighbours == 3 ) ) {
+                return ALIVE;
+            }
+
+            //Else die
+            return DEAD;
+        
+        }
+
+        function step() {
+            let worldCopy = [...world];
+            for( let x = 0 ; x < rowSize  ; x++ ) { for( let y = 0 ; y < rowSize ; y++ ) { 
+                let idx = y * rowSize + x;
+                world[idx]  =  processCell( idx, worldCopy );
+            }}
+        }
+
+        function draw() {
+            background(220);
+            noStroke();
+
+            if( auto ) {
+                step();
+            }
+
+            let offset = (borderSize+1)*cellSize;
+            for( let x = borderSize ; x < rowSize - borderSize + 1 ; x++ ) { for( let y = borderSize ; y < rowSize-borderSize+1 ; y++ ) { 
+                let idx = y * rowSize + x;
+                
+                if( world[idx] == ALIVE ) fill(200,200,200)
+                else fill(0);
+                
+                rect( x * cellSize - offset  , y * cellSize - offset, cellSize, cellSize );
+                
+            }}
+            
+        
+        }
+    </script>
+
+  </body>
+</html>
